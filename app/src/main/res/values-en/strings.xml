@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WebBrowser</string>
+    <string name="desc_back">Back</string>
+    <string name="desc_refresh">Reload page</string>
+    <string name="desc_favorites">Show favorites</string>
+    <string name="desc_search">Search</string>
+    <string name="initial_site">www.google.com.br</string>
+    <string name="favorites_menu_add">Add to favorites</string>
+    <string name="favorites_menu_remove">Remove from favorites</string>
+    <string name="msg_add_favorite">Site added to favorites!</string>
+    <string name="msg_remove_favorite">Site removed from favorites!</string>
+</resources>

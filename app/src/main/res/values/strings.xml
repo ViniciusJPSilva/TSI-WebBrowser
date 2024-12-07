@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">WebBrowser</string>
+
+    <string name="desc_back">Voltar</string>
+    <string name="desc_refresh">Recarregar a página</string>
+    <string name="desc_favorites">Exibir favoritos</string>
+    <string name="desc_search">Buscar</string>
+
+    <string name="initial_site">www.google.com.br</string>
+
+    <string name="favorites_menu_add">Adicionar aos favoritos</string>
+    <string name="favorites_menu_remove">Remover dos favoritos</string>
+
+    <string name="msg_add_favorite">Site adicionado aos favoritos!</string>
+    <string name="msg_remove_favorite">Site removido dos favoritos!</string>
+
+
+</resources>

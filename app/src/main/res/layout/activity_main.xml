@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="?attr/actionBarTheme"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <ImageButton
+            android:id="@+id/buttonBack"
+            android:layout_width="@dimen/btn_header"
+            android:layout_height="@dimen/btn_header"
+            android:layout_marginHorizontal="@dimen/h_margin_elements_header"
+            android:background="@null"
+            android:contentDescription="@string/desc_back"
+            android:scaleType="fitCenter"
+            android:src="@drawable/back_img"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/buttonRefresh"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/buttonRefresh"
+            android:layout_width="@dimen/btn_header"
+            android:layout_height="@dimen/btn_header"
+            android:layout_marginHorizontal="@dimen/h_margin_elements_header"
+            android:background="@null"
+            android:contentDescription="@string/desc_refresh"
+            android:scaleType="fitCenter"
+            android:src="@drawable/refresh_img"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/searchText"
+            app:layout_constraintStart_toEndOf="@id/buttonBack"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <EditText
+            android:id="@+id/searchText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="@dimen/h_margin_elements_header"
+            android:autofillHints=""
+            android:ems="10"
+            android:inputType="text"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:selectAllOnFocus="true"
+            android:labelFor="@id/buttonSearch"
+            android:minHeight="48dp"
+            android:text="@string/initial_site"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/buttonSearch"
+            app:layout_constraintStart_toEndOf="@id/buttonRefresh"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="LabelFor"
+            android:backgroundTint="@color/black"/>
+
+        <ImageButton
+            android:id="@+id/buttonSearch"
+            android:layout_width="@dimen/btn_header"
+            android:layout_height="@dimen/btn_header"
+            android:layout_marginHorizontal="@dimen/h_margin_elements_header"
+            android:background="@null"
+            android:contentDescription="@string/desc_search"
+            android:scaleType="fitCenter"
+            android:src="@drawable/search_img"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/buttonFavorites"
+            app:layout_constraintStart_toEndOf="@id/searchText"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TouchTargetSizeCheck" />
+
+        <ImageButton
+            android:id="@+id/buttonFavorites"
+            android:layout_width="@dimen/btn_header"
+            android:layout_height="@dimen/btn_header"
+            android:layout_marginHorizontal="@dimen/h_margin_elements_header"
+            android:background="@null"
+            android:contentDescription="@string/desc_favorites"
+            android:scaleType="fitCenter"
+            android:src="@drawable/star_img"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/buttonSearch"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="TouchTargetSizeCheck" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <RelativeLayout
+        android:id="@+id/relativeLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolBar"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <WebView
+            android:id="@+id/webView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#ffffff" />
+    </RelativeLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
