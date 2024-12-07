@@ -24,7 +24,7 @@ Simple web browsing Android application, developed in Android Studio and Java.
 
 <div align="center" >
   
-  <img src="https://github.com/user-attachments/assets/dcfbe3a9-d9e7-480c-b701-db007b18c9f8" width="425"/> <img src="https://github.com/user-attachments/assets/1397f65e-f997-4c79-81be-e1796f58f070" width="425"/> 
+  <img src="https://github.com/user-attachments/assets/dcfbe3a9-d9e7-480c-b701-db007b18c9f8" width="350"/> <img src="https://github.com/user-attachments/assets/1397f65e-f997-4c79-81be-e1796f58f070" width="350"/> 
   
 </div>
 
