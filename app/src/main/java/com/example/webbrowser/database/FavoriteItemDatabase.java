@@ -19,7 +19,7 @@ public class FavoriteItemDatabase implements Database<FavoriteItem>, Closeable {
     private static final String
             TABLE_NAME = "favoriteItem",
             QUERY_STRUCT = "CREATE TABLE IF NOT EXISTS favoriteItem (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT NOT NULL, url TEXT NOT NULL);",
-            QUERY_SELECT_ALL = "SELECT * FROM favoriteItem ORDER BY itemIdentifier;",
+            QUERY_SELECT_ALL = "SELECT * FROM favoriteItem ORDER BY title;",
             QUERY_CLEAR = "DROP TABLE IF EXISTS favoriteItem",
             COLLUMN_TITLE = "title",
             COLLUMN_URL = "url";
