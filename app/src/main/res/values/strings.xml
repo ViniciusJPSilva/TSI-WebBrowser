@@ -14,5 +14,6 @@
     <string name="msg_add_favorite">Site adicionado aos favoritos!</string>
     <string name="msg_remove_favorite">Site removido dos favoritos!</string>
 
+    <string name="error_web_view">Não foi possível carregar a página.</string>
 
 </resources>

@@ -2,12 +2,18 @@ package com.example.webbrowser;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
+import android.webkit.WebResourceResponse;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.EditText;
@@ -17,6 +23,7 @@ import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -27,13 +34,32 @@ import com.example.webbrowser.models.FavoriteItem;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Classe principal da aplicação Android que implementa um navegador WebView com suporte a favoritos.
+ * Permite buscas na web, navegação entre páginas, gerenciamento de favoritos e tratamento de erros
+ * durante o carregamento de páginas. Inclui suporte à interface moderna com Edge-to-Edge e ajustes
+ * para a experiência do usuário.
+ * </br></br>
+ * Funcionalidades principais:
+ * </br>- Busca de páginas na web através de uma barra de pesquisa.
+ * </br>- Verificação e gerenciamento de favoritos com persistência local.
+ * </br>- Tratamento de erros durante o carregamento de páginas, exibindo uma tela de erro quando necessário.
+ * </br>- Navegação no histórico de páginas (voltar e avançar).
+ * </br>- Atualização da página atual.
+ * </br>- Suporte a interações com atalhos e feedback tátil.
+ *
+ * @author Vinicius J P Silva
+ */
 public class MainActivity extends AppCompatActivity {
 
     public static final String  GOOGLE_QUERY = "https://www.google.com/search?q=";
 
     public WebView webView;
+    ConstraintLayout errorView;
     private String currentSearch;
     private EditText searchEditText;
+
+    private boolean hasErrorOccurred = false;
 
     private List<FavoriteItem> favoriteList;
 
@@ -52,6 +78,8 @@ public class MainActivity extends AppCompatActivity {
 
         favoriteList = new ArrayList<>();
 
+        errorView = findViewById(R.id.errorWebViewLayout);
+
         webView = findViewById(R.id.webView);
         webView.setWebChromeClient(new WebChromeClient());
         webView.getSettings().setJavaScriptEnabled(true);
@@ -60,7 +88,27 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
+                turnWebViewVisible(!hasErrorOccurred);
                 checkFavorite();
+                hasErrorOccurred = false;
+            }
+
+            @Override
+            public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+                super.onReceivedError(view, request, error);
+                hasErrorOccurred = true;
+            }
+
+            @Override
+            public void onReceivedHttpError(WebView view, WebResourceRequest request, WebResourceResponse errorResponse) {
+                super.onReceivedHttpError(view, request, errorResponse);
+                hasErrorOccurred = true;
+            }
+
+            @Override
+            public void onReceivedSslError(WebView view, SslErrorHandler handler, SslError error) {
+                super.onReceivedSslError(view, handler, error);
+                hasErrorOccurred = true;
             }
         });
 
@@ -97,6 +145,10 @@ public class MainActivity extends AppCompatActivity {
         persistFavorites();
     }
 
+    /**
+     * Realiza a busca no WebView utilizando o texto informado pelo usuário. Caso o texto não seja uma URL válida,
+     * utiliza o mecanismo de busca do Google para realizar a pesquisa.
+     */
     private void search() {
         currentSearch = uiGetSearchTextText();
         webView.loadUrl(isValidUrl(currentSearch) ? currentSearch : String.format("%s%s", GOOGLE_QUERY, currentSearch.replace(" ", "+")));
@@ -104,21 +156,35 @@ public class MainActivity extends AppCompatActivity {
         uiSetSearchTextText(currentSearch);
     }
 
+    /**
+     * Atualiza a página atual no WebView e redefine o texto de busca com a URL atual.
+     */
     private void refresh() {
         uiSetSearchTextText(currentSearch);
         webView.reload();
     }
 
+    /**
+     * Navega para a página anterior no histórico do WebView, se disponível.
+     */
     private void back() {
         if(webView.canGoBack())
             webView.goBack();
     }
 
+    /**
+     * Navega para a próxima página no histórico do WebView, se disponível.
+     */
     private void forward() {
         if(webView.canGoForward())
             webView.goForward();
     }
 
+    /**
+     * Exibe um menu de favoritos, permitindo adicionar, remover ou selecionar favoritos.
+     *
+     * @param favoritesButton O botão que invocará o menu de favoritos.
+     */
     private void favorites(ImageButton favoritesButton) {
         PopupMenu favoritesMenu = new PopupMenu(this, favoritesButton);
         refreshFavorites(favoritesMenu);
@@ -136,18 +202,32 @@ public class MainActivity extends AppCompatActivity {
         favoritesMenu.show();
     }
 
+    /**
+     * Adiciona um item ao menu de favoritos.
+     *
+     * @param menu O menu onde o item será adicionado.
+     * @param item O item favorito a ser adicionado.
+     */
     private void addFavoriteToMenu(PopupMenu menu, FavoriteItem item) {
         if(menu == null || item == null) return;
         menu.getMenu().add(0, favoriteList.size() + 1, favoriteList.size() + 1, item.getTitle());
         checkFavorite();
     }
 
+    /**
+     * Remove o favorito correspondente à página atual do WebView.
+     */
     private void removeFavoriteFromMenu() {
         if(favoriteList.remove(new FavoriteItem(webView.getTitle(), webView.getUrl())))
             Toast.makeText(this, R.string.msg_remove_favorite, Toast.LENGTH_SHORT).show();
         checkFavorite();
     }
 
+    /**
+     * Atalho para adicionar ou remover a página atual como favorito.
+     *
+     * @return {@code true} se a operação foi realizada.
+     */
     private boolean shortcutAddToFavorites() {
         if(generateAndSaveWebsiteFavorite() != null) {
             Toast.makeText(this, R.string.msg_add_favorite, Toast.LENGTH_SHORT).show();
@@ -157,12 +237,18 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+    /**
+     * Recupera a lista de favoritos do banco de dados local.
+     */
     private void recoverFavorites() {
         try (FavoriteItemDatabase favoriteItemDatabase = new FavoriteItemDatabase(this)) {
             favoriteList = favoriteItemDatabase.getAll();
         }
     }
 
+    /**
+     * Salva a lista de favoritos no banco de dados local.
+     */
     private void persistFavorites() {
         try (FavoriteItemDatabase favoriteItemDatabase = new FavoriteItemDatabase(this)) {
             favoriteItemDatabase.clear();
@@ -172,11 +258,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Atualiza o ícone do botão de favoritos com base na presença da página atual na lista de favoritos.
+     */
     private void checkFavorite() {
         ImageButton button = findViewById(R.id.buttonFavorites);
         button.setImageResource((favoriteList.contains(new FavoriteItem(webView.getTitle(), webView.getUrl()))) ? R.drawable.full_star_img : R.drawable.star_img);
     }
 
+    /**
+     * Gera um item favorito com as informações da página atual e o adiciona à lista de favoritos.
+     *
+     * @return O item gerado ou {@code null} se já existir na lista.
+     */
     private FavoriteItem generateAndSaveWebsiteFavorite() {
         FavoriteItem item = new FavoriteItem(webView.getTitle(), webView.getUrl());
         if(favoriteList.contains(item)) return null;
@@ -184,35 +278,85 @@ public class MainActivity extends AppCompatActivity {
         return item;
     }
 
+    /**
+     * Realiza a busca com base no item selecionado no menu de favoritos.
+     *
+     * @param item O item selecionado.
+     */
     private void searchFavorite(MenuItem item) {
         FavoriteItem favoriteItem = favoriteList.get(item.getItemId() - 1);
         uiSetSearchTextText(favoriteItem.getUrl());
         search();
     }
 
+    /**
+     * Atualiza o menu de favoritos com a lista de favoritos atual.
+     *
+     * @param menu O menu de favoritos a ser atualizado.
+     */
     private void refreshFavorites(PopupMenu menu) {
         for(FavoriteItem item : favoriteList)
             menu.getMenu().add(0, favoriteList.indexOf(item) + 1, favoriteList.indexOf(item) + 1, item.getTitle());
     }
 
+    /**
+     * Verifica se a URL fornecida é válida.
+     *
+     * @param url A URL a ser validada.
+     * @return {@code true} se a URL for válida, {@code false} caso contrário.
+     */
     private boolean isValidUrl(String url) {
         return android.util.Patterns.WEB_URL.matcher(url).matches();
     }
 
+    /**
+     * Verifica se a tecla Enter foi pressionada com base na ação recebida.
+     *
+     * @param actionId O ID da ação do teclado.
+     * @return {@code true} se a tecla Enter foi pressionada, {@code false} caso contrário.
+     */
     private boolean isEnterKeyPressed(int actionId) {
         return actionId == EditorInfo.IME_ACTION_DONE || actionId == EditorInfo.IME_ACTION_NEXT;
     }
 
+    /**
+     * Faz o dispositivo vibrar, se suportado.
+     */
     private void vibratePhone() {
         Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null && vibrator.hasVibrator())
             vibrator.vibrate(500);
     }
 
+    /**
+     * Alterna a visibilidade do WebView e da visão de erro.
+     *
+     * @param isVisible {@code true} para tornar o WebView visível, {@code false} para exibir a view de erro.
+     */
+    private void turnWebViewVisible(boolean isVisible) {
+        if(isVisible) {
+            webView.setVisibility(View.VISIBLE);
+            errorView.setVisibility(View.INVISIBLE);
+        } else {
+            webView.setVisibility(View.INVISIBLE);
+            errorView.setVisibility(View.VISIBLE);
+        }
+    }
+
+    /**
+     * Obtém o texto atual inserido na barra de busca.
+     *
+     * @return O texto da barra de busca.
+     */
     private String uiGetSearchTextText() {
         return searchEditText.getText().toString();
     }
 
+    /**
+     * Define o texto na barra de busca.
+     *
+     * @param text O texto a ser exibido na barra de busca.
+     */
     private void uiSetSearchTextText(String text) {
         searchEditText.setText(text);
     }
