@@ -1,7 +1,10 @@
 package com.example.webbrowser;
 
 import android.annotation.SuppressLint;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Bundle;
 import android.os.Vibrator;
@@ -28,6 +31,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.webbrowser.constants.UriSchemes;
 import com.example.webbrowser.database.FavoriteItemDatabase;
 import com.example.webbrowser.models.FavoriteItem;
 
@@ -53,6 +57,7 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity {
 
     public static final String  GOOGLE_QUERY = "https://www.google.com/search?q=";
+    public static final int VIBRATE_TIME = 500;
 
     public WebView webView;
     ConstraintLayout errorView;
@@ -91,6 +96,15 @@ public class MainActivity extends AppCompatActivity {
                 turnWebViewVisible(!hasErrorOccurred);
                 checkFavorite();
                 hasErrorOccurred = false;
+            }
+
+            @Override
+            public boolean shouldOverrideUrlLoading(WebView view, WebResourceRequest request) {
+                String url = request.getUrl().toString();
+
+                if (handleMailToLink(view, url)) return true;
+                if (handleTelLink(view, url)) return true;
+                return handleIntentLink(url);
             }
 
             @Override
@@ -141,7 +155,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-
         persistFavorites();
     }
 
@@ -325,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
     private void vibratePhone() {
         Vibrator vibrator = (Vibrator) getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
         if (vibrator != null && vibrator.hasVibrator())
-            vibrator.vibrate(500);
+            vibrator.vibrate(VIBRATE_TIME);
     }
 
     /**
@@ -341,6 +354,74 @@ public class MainActivity extends AppCompatActivity {
             webView.setVisibility(View.INVISIBLE);
             errorView.setVisibility(View.VISIBLE);
         }
+    }
+
+    /**
+     * Manipula links do tipo "mailto:".
+     * <p>
+     * Este método trata URLs que iniciam com "mailto:" e tenta abrir o aplicativo de e-mail
+     * padrão para compor um e-mail. Caso nenhum aplicativo de e-mail esteja disponível,
+     * exibe uma mensagem de erro ao usuário.
+     * </p>
+     * @param view A WebView que disparou a solicitação.
+     * @param url  A URL sendo carregada.
+     * @return {@code true} se o link foi tratado, {@code false} caso contrário.
+     */
+    private boolean handleMailToLink(WebView view, String url) {
+        if (url.startsWith(UriSchemes.MAILTO)) {
+            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
+            emailIntent.setData(Uri.parse(url));
+            try {
+                view.getContext().startActivity(emailIntent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(this, R.string.msg_handle_email, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Manipula links do tipo "tel:".
+     * <p>
+     * Este método trata URLs que iniciam com "tel:" e tenta abrir o discador do dispositivo
+     * para iniciar uma chamada telefônica. Caso o discador não esteja disponível,
+     * exibe uma mensagem de erro ao usuário.
+     * </p>
+     * @param view A WebView que disparou a solicitação.
+     * @param url  A URL sendo carregada.
+     * @return {@code true} se o link foi tratado, {@code false} caso contrário.
+     */
+    private boolean handleTelLink(WebView view, String url) {
+        if (url.startsWith(UriSchemes.TEL)) {
+            Intent phoneIntent = new Intent(Intent.ACTION_DIAL);
+            phoneIntent.setData(Uri.parse(url));
+            try {
+                view.getContext().startActivity(phoneIntent);
+            } catch (ActivityNotFoundException e) {
+                Toast.makeText(this, R.string.msg_handle_tel, Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Manipula links genéricos do tipo Intent.
+     * <p>
+     * Este método trata URLs que iniciam com "intent:" e exibe uma mensagem informativa
+     * para o usuário. Não realiza nenhuma ação adicional, mas pode ser expandido
+     * para tratar intents genéricos no futuro.
+     * </p>
+     * @param url  A URL sendo carregada.
+     * @return {@code true} se o link foi tratado, {@code false} caso contrário.
+     */
+    private boolean handleIntentLink(String url) {
+        if (url.startsWith(UriSchemes.INTENT)) {
+            Toast.makeText(this, R.string.msg_handle_itent, Toast.LENGTH_SHORT).show();
+            return true;
+        }
+        return false;
     }
 
     /**

@@ -10,5 +10,8 @@
     <string name="favorites_menu_remove">Remove from favorites</string>
     <string name="msg_add_favorite">Site added to favorites!</string>
     <string name="msg_remove_favorite">Site removed from favorites!</string>
+    <string name="msg_handle_itent">No application found to handle this link!</string>
     <string name="error_web_view">" The page could not be loaded."</string>
+    <string name="msg_handle_email">No email client found!</string>
+    <string name="msg_handle_tel">No phone client found!</string>
 </resources>

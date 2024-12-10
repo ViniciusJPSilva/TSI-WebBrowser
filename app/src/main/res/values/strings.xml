@@ -13,6 +13,9 @@
 
     <string name="msg_add_favorite">Site adicionado aos favoritos!</string>
     <string name="msg_remove_favorite">Site removido dos favoritos!</string>
+    <string name="msg_handle_email">Nenhum cliente de email encontrado!</string>
+    <string name="msg_handle_tel">Nenhum cliente de telefone encontrado!</string>
+    <string name="msg_handle_itent">Nenhum aplicativo encontrado para lidar com este link!</string>
 
     <string name="error_web_view">Não foi possível carregar a página.</string>
 
